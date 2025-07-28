@@ -169,6 +169,44 @@ static void example_lvgl_port_task(void *arg)
     }
 }
 
+static int16_t encoder_diff = 0;
+static lv_indev_state_t encoder_btn_state = LV_INDEV_STATE_RELEASED;
+
+static bool joystick_read_cb(lv_indev_t *indev, lv_indev_data_t *data) {
+    data->enc_diff = encoder_diff;
+    data->state = encoder_btn_state;
+    encoder_diff = 0;
+    return false;
+}
+
+static lv_indev_t *joystick_indev;
+
+void setup_joystick_input() {
+    joystick_indev = lv_indev_create();
+    lv_indev_set_type(joystick_indev, LV_INDEV_TYPE_ENCODER);
+    lv_indev_set_read_cb(joystick_indev, joystick_read_cb);
+}
+
+
+void joystick_poll_task(void *param) {
+    lv_obj_t *rect = (lv_obj_t *)param;
+    int y = lv_obj_get_y(rect);
+
+    while (1) {
+        // Simulate joystick up/down
+        encoder_diff = 1; // Pretend the joystick moved
+        y += 5;
+
+        _lock_acquire(&lvgl_api_lock);
+        lv_obj_set_y(rect, y);
+        _lock_release(&lvgl_api_lock);
+
+        vTaskDelay(pdMS_TO_TICKS(200));  // Update every 200ms
+    }
+}
+
+
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Turn off LCD backlight");
@@ -306,8 +344,14 @@ void app_main(void)
     xTaskCreate(example_lvgl_port_task, "LVGL", EXAMPLE_LVGL_TASK_STACK_SIZE, NULL, EXAMPLE_LVGL_TASK_PRIORITY, NULL);
 
     ESP_LOGI(TAG, "Display LVGL Meter Widget");
+
+    setup_joystick_input();
+
     // Lock the mutex due to the LVGL APIs are not thread-safe
     _lock_acquire(&lvgl_api_lock);
-    example_lvgl_demo_ui(display);
+    lv_obj_t *paddle;
+    paddle = example_lvgl_demo_ui(display);
     _lock_release(&lvgl_api_lock);
 }
+
+
