@@ -22,9 +22,9 @@
     {
       "type": "wokwi-pushbutton",
       "id": "btn2",
-      "top": -291.4,
-      "left": -48,
-      "attrs": { "color": "green", "xray": "1" }
+      "top": -3.4,
+      "left": -144,
+      "attrs": { "color": "black", "xray": "1" }
     },
     {
       "type": "wokwi-analog-joystick",
@@ -45,7 +45,9 @@
     [ "lcd2:MOSI", "esp:D19", "green", [ "v0" ] ],
     [ "lcd2:SCK", "esp:D18", "green", [ "v0" ] ],
     [ "lcd2:LED", "esp:D2", "green", [ "v0" ] ],
-    [ "lcd2:MISO", "esp:D21", "green", [ "v0" ] ]
+    [ "lcd2:MISO", "esp:D21", "green", [ "v0" ] ],
+    [ "btn2:2.r", "esp:GND.2", "green", [ "h0" ] ],
+    [ "btn2:1.r", "esp:D12", "green", [ "v0" ] ]
   ],
   "dependencies": {}
 }
